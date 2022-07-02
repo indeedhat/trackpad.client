@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ConnectFragment">
+    <com.google.android.flexbox.FlexboxLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/connect_page"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:alignItems="stretch"
+        app:alignContent="stretch"
+        app:justifyContent="center"
+        app:flexDirection="column">
+
+        <EditText
+            android:id="@+id/connect_ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="192.168.0.10:8881"
+            android:textAlignment="center"
+            android:padding="5dp"
+            />
+
+        <Button
+            android:id="@+id/connect_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:text="Connect"
+            />
+
+    </com.google.android.flexbox.FlexboxLayout>
+</FrameLayout>
