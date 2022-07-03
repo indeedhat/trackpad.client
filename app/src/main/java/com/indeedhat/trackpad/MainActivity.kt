@@ -1,19 +1,24 @@
 package com.indeedhat.trackpad
 
 import android.content.Context
+import android.net.Uri
 import android.net.wifi.WifiManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.KeyEvent
-import android.view.MotionEvent
-import android.view.View
+import android.util.Log
+import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.webkit.URLUtil
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
+import androidx.appcompat.app.ActionBar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.indeedhat.trackpad.net.WebSocketHanler
 import com.indeedhat.trackpad.ui.ConnectFragment
 import com.indeedhat.trackpad.ui.TrackpadFragment
@@ -50,10 +55,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        ws.disconnect()
+        if (this::ws.isInitialized && ws.isConnected) {
+            ws.disconnect()
+        } else {
+            finish()
+            moveTaskToBack(true)
+        }
     }
 
     public fun openControlsView() {
+        goFullScreen()
+
         leftClick  = findViewById<Button>(R.id.left_click)
         rightClick = findViewById<Button>(R.id.right_click)
         keeb       = findViewById<Button>(R.id.keeb)
@@ -120,6 +132,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     public fun openConnectView() {
+        exitFullScreen()
+
         input   = findViewById<EditText>(R.id.connect_ip)
         connect = findViewById<Button>(R.id.connect_button)
 
@@ -134,7 +148,14 @@ class MainActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable) {}
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                if (addresses.indexOf(input.text.toString()) == -1) {
+                val url = input.text.toString()
+                var uri = Uri.parse("ws://" + url)
+                connect.isEnabled = uri.scheme == "ws"
+                        && uri.host != ""
+                        && uri.port > 0
+                        && uri.path == ""
+
+                if (addresses.indexOf(url) == -1) {
                     addressList.clearChoices()
                     addressList.requestLayout()
                 }
@@ -157,6 +178,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (!this::ws.isInitialized) {
+            return false
+        }
+
         var code = event?.unicodeChar!!
         if (keyCode == 67) {
             code = 2408
@@ -206,5 +231,25 @@ class MainActivity : AppCompatActivity() {
             lock.release()
             lock = null
         }.start()
+    }
+
+    private fun goFullScreen() {
+        val windowInsetsController =
+            ViewCompat.getWindowInsetsController(window.decorView) ?: return
+        // Configure the behavior of the hidden system bars
+        windowInsetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        // Hide both the status bar and the navigation bar
+        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+    }
+
+    private fun exitFullScreen() {
+        val windowInsetsController =
+            ViewCompat.getWindowInsetsController(window.decorView) ?: return
+        // Configure the behavior of the hidden system bars
+        windowInsetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        // Hide both the status bar and the navigation bar
+        windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
     }
 }

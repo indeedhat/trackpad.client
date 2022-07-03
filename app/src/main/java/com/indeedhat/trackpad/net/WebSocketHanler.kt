@@ -6,6 +6,9 @@ import com.neovisionaries.ws.client.WebSocketFactory
 import com.neovisionaries.ws.client.WebSocketFrame
 
 class WebSocketHanler {
+    public val isConnected: Boolean
+        get() = socket.isOpen
+
     private lateinit var connectCb: () -> Unit
     private lateinit var disconnectCb: () -> Unit
 
@@ -64,4 +67,5 @@ class WebSocketHanler {
     public fun disconnect() {
         socket.disconnect()
     }
+
 }
