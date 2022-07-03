@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var addressListAdapter: ArrayAdapter<String>
 
     private var addresses = ArrayList<String>()
+    private var hostnames = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -141,7 +142,7 @@ class MainActivity : AppCompatActivity() {
         addressList.setOnItemClickListener { adapterView, view, i, l ->
             input.setText(addresses[i])
         }
-        addressListAdapter  = ArrayAdapter(this, android.R.layout.simple_list_item_single_choice, addresses)
+        addressListAdapter  = ArrayAdapter(this, android.R.layout.simple_list_item_single_choice, hostnames)
         addressList.adapter = addressListAdapter
 
         input.addTextChangedListener(object : TextWatcher {
@@ -214,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                 val parts = rcv.data
                     .decodeToString()
                     .split(";")
-                if (parts.size != 3 || parts[0] != "trackpad.server") {
+                if (parts.size != 4 || parts[0] != "trackpad.server") {
                     continue
                 }
 
@@ -224,7 +225,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 runOnUiThread {
-                    addressListAdapter.add(server)
+                    addressListAdapter.add(parts[2])
+                    addresses.add(server)
                 }
             }
 
