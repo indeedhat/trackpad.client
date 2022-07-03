@@ -22,7 +22,7 @@
             android:background="@color/white"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:text="192.168.0.10:8881"
+            android:hint="[host]:[port]"
             android:textAlignment="center"
             android:padding="5dp"
             />
@@ -35,6 +35,18 @@
             android:layout_marginRight="20dp"
             android:text="Connect"
             />
+        <ListView
+            android:id="@+id/listView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:background="@color/cardview_light_background"
+            android:padding="5dp"
+            android:layout_margin="10dp"
+            android:choiceMode="singleChoice"
+            />
 
     </com.google.android.flexbox.FlexboxLayout>
+
 </FrameLayout>
