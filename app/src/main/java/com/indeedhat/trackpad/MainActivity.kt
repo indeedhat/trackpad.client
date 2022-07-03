@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 runOnUiThread {
-                    addressListAdapter.add(parts[2])
+                    addressListAdapter.add("${parts[2]}\n${server}")
                     addresses.add(server)
                 }
             }
