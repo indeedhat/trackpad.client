@@ -1,19 +1,18 @@
-package com.indeedhat.trackpad
+package com.indeedhat.trackpad.ui
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.indeedhat.trackpad.R
 
-class ConnectFragment : Fragment() {
+class LoadingFragment : Fragment() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        (getActivity() as MainActivity).openConnectView()
+        arguments?.let {
+        }
     }
 
     override fun onCreateView(
@@ -21,13 +20,15 @@ class ConnectFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_connect, container, false)
+        return inflater.inflate(R.layout.fragment_loading, container, false)
     }
 
     companion object {
         @JvmStatic
-        fun newInstance() =
-            ConnectFragment().apply {
+        fun newInstance(param1: String, param2: String) =
+            LoadingFragment().apply {
+                arguments = Bundle().apply {
+                }
             }
     }
 }
