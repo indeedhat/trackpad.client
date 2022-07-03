@@ -6,3 +6,4 @@ Control a computers mouse/keyboard from an android app
 - [ ] Add macro list
 - [ ] store last connected addres
 - [ ] add option to require a password on connect
+- [x] tap down/up on mouse buttons to allow for dragging etc

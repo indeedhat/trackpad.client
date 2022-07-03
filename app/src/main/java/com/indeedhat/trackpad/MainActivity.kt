@@ -72,12 +72,28 @@ class MainActivity : AppCompatActivity() {
         keeb       = findViewById<Button>(R.id.keeb)
         trackpad   = findViewById<View>(R.id.trackpad)
 
-        leftClick.setOnClickListener{
-            ws.sendLeftClick();
-        }
-        rightClick.setOnClickListener{
-            ws.sendRightClick()
-        }
+        leftClick.setOnTouchListener(View.OnTouchListener{ View, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    ws.sendLeftClick(true)
+                }
+                MotionEvent.ACTION_UP -> {
+                    ws.sendLeftClick(false)
+                }
+            }
+            return@OnTouchListener true
+        })
+        rightClick.setOnTouchListener(View.OnTouchListener{ View, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    ws.sendRightClick(true)
+                }
+                MotionEvent.ACTION_UP -> {
+                    ws.sendRightClick(false)
+                }
+            }
+            return@OnTouchListener true
+        })
         keeb.setOnClickListener{ view ->
             (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
                 .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
@@ -103,9 +119,11 @@ class MainActivity : AppCompatActivity() {
                     if (event.getX(0) == downX && event.getY(0) == downY) {
                         if (event.pointerCount > 1) {
                             // TODO: this doesn't really work
-                            ws.sendRightClick()
+                            ws.sendRightClick(true)
+                            ws.sendRightClick(false)
                         } else {
-                            ws.sendLeftClick()
+                            ws.sendLeftClick(true)
+                            ws.sendLeftClick(false)
                         }
                     }
                     downX = null

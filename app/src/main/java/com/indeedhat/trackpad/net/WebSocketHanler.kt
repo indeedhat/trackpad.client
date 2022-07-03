@@ -44,12 +44,12 @@ class WebSocketHanler {
         socket.connectAsynchronously()
     }
 
-    public fun sendRightClick() {
-        socket.sendText("click,right")
+    public fun sendRightClick(down: Boolean) {
+        socket.sendText("click,right,${down}")
     }
 
-    public fun sendLeftClick() {
-        socket.sendText("click,left")
+    public fun sendLeftClick(down: Boolean) {
+        socket.sendText("click,left,${down}")
     }
 
     public fun sendMotion(x: Float, y: Float) {
