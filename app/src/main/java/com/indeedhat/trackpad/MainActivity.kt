@@ -1,5 +1,6 @@
 package com.indeedhat.trackpad
 
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -7,15 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.webkit.URLUtil
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
-import androidx.appcompat.app.ActionBar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -27,6 +25,10 @@ import java.net.InetAddress
 import java.net.MulticastSocket
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        public lateinit var instance: MainActivity
+    }
+
     private lateinit var ws: WebSocketHanler
 
     private lateinit var keeb: Button
@@ -44,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
 
         setContentView(R.layout.activity_main)
         serverDiscovery()
@@ -65,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     public fun openControlsView() {
+        Thread.sleep(100)
         goFullScreen()
 
         leftClick  = findViewById<Button>(R.id.left_click)
@@ -183,6 +187,8 @@ class MainActivity : AppCompatActivity() {
 
         connect.setOnClickListener{
             ws = WebSocketHanler("ws://${input.text}/ws", {
+                // password entry managed by the socket handler
+
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_manager, TrackpadFragment.newInstance(), "trackpad_page")
                     .commit()
