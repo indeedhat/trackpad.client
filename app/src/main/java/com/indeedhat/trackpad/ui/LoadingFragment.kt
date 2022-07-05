@@ -25,10 +25,9 @@ class LoadingFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            LoadingFragment().apply {
-                arguments = Bundle().apply {
-                }
+        fun newInstance(param1: String, param2: String) = LoadingFragment().apply {
+            arguments = Bundle().apply {
             }
+        }
     }
 }

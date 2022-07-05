@@ -28,8 +28,7 @@ class ConnectFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance() =
-            ConnectFragment().apply {
-            }
+        fun newInstance() =ConnectFragment().apply {
+        }
     }
 }

@@ -14,10 +14,10 @@ class WebSocketHanler {
     public val isConnected: Boolean
         get() = socket.isOpen
 
-    private lateinit var connectCb: () -> Unit
-    private lateinit var disconnectCb: () -> Unit
+    private var connectCb: () -> Unit
+    private var disconnectCb: () -> Unit
 
-    private lateinit var socket: WebSocket
+    private var socket: WebSocket
 
     constructor(url: String, onConnect: () -> Unit, onDisconnect: () -> Unit) {
         connectCb = onConnect

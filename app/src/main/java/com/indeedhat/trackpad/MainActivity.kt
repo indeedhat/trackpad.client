@@ -67,6 +67,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        if (this::ws.isInitialized && ws.isConnected) {
+            ws.disconnect()
+        }
+    }
+
     public fun openControlsView() {
         Thread.sleep(100)
         goFullScreen()
@@ -262,20 +268,16 @@ class MainActivity : AppCompatActivity() {
     private fun goFullScreen() {
         val windowInsetsController =
             ViewCompat.getWindowInsetsController(window.decorView) ?: return
-        // Configure the behavior of the hidden system bars
         windowInsetsController.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        // Hide both the status bar and the navigation bar
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
     }
 
     private fun exitFullScreen() {
         val windowInsetsController =
             ViewCompat.getWindowInsetsController(window.decorView) ?: return
-        // Configure the behavior of the hidden system bars
         windowInsetsController.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        // Hide both the status bar and the navigation bar
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
     }
 }

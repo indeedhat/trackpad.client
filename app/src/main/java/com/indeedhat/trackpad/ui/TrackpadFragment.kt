@@ -28,8 +28,8 @@ class TrackpadFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance() =
-            TrackpadFragment().apply {
-            }
+        fun newInstance() = TrackpadFragment().apply {
+
+        }
     }
 }
