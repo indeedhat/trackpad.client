@@ -97,6 +97,15 @@ class WebSocketHanler {
     public fun sendPass(pass: String) {
         socket.sendText("pass;${pass}")
     }
+    
+    public fun sendZoom(amount: Float) {
+        // always happens at the start/end of a zoom
+        if (amount == 1f) {
+            return
+        }
+
+        socket.sendText("zoom;${amount}")
+    }
 
     public fun disconnect() {
         isAuthenticated = false

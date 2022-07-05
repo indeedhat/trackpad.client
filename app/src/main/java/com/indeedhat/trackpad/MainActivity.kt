@@ -14,6 +14,8 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
+import android.util.Log
+import android.icu.number.Scale
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -28,6 +30,8 @@ class MainActivity : AppCompatActivity() {
     companion object {
         public lateinit var instance: MainActivity
     }
+
+    private val pinchDeadzone = 10
 
     private lateinit var ws: WebSocketHanler
 
@@ -113,8 +117,31 @@ class MainActivity : AppCompatActivity() {
         var downY: Float? = null
         var prevX: Float? = null
         var prevY: Float? = null
+        var scaling = false;
+        var scrolling = false
+
+        val scaler = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                scaling = !scrolling
+                return true
+            }
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                Log.d("scaling", "scroll ${scrolling}")
+                if (!scrolling) {
+                    ws.sendZoom(detector.scaleFactor)
+                }
+                return true
+            }
+            override fun onScaleEnd(detector: ScaleGestureDetector) {
+                Log.d("scaling", "end")
+                scaling = false
+            }
+        }
+        val scaleListener = ScaleGestureDetector(this, scaler)
 
         trackpad.setOnTouchListener(View.OnTouchListener { View, event ->
+            scaleListener.onTouchEvent(event)
+
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     if (downX == null) {
@@ -136,6 +163,8 @@ class MainActivity : AppCompatActivity() {
                             ws.sendLeftClick(false)
                         }
                     }
+
+                    scrolling = false
                     downX = null
                     downY = null
                 }
@@ -144,8 +173,14 @@ class MainActivity : AppCompatActivity() {
                     var y = event.y
 
                     if (prevX != null && prevY != null) {
+                        Log.d("scaling", "scale ${scaling}")
+                        if (scaling) {
+                            return@OnTouchListener true
+                        }
+
                         if (event.pointerCount > 1) {
-                            ws.sendScroll(x - prevX!!, y - prevY!!)
+                            // scrolling = true
+                            // ws.sendScroll(x - prevX!!, y - prevY!!)
                         } else {
                             ws.sendMotion(x - prevX!!, y - prevY!!)
                         }
