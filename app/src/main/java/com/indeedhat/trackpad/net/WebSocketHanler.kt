@@ -6,6 +6,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.EditText
+import android.text.InputType
+import android.text.TextUtils
+import android.text.method.PasswordTransformationMethod
 import com.indeedhat.trackpad.MainActivity
 import com.neovisionaries.ws.client.*
 
@@ -114,6 +117,11 @@ class WebSocketHanler {
         val context = MainActivity.instance
         context.runOnUiThread{
             val input = EditText(context)
+            input.isSingleLine = true
+            input.hint = "Password"
+            input.ellipsize = TextUtils.TruncateAt.START
+            input.transformationMethod = PasswordTransformationMethod.getInstance()
+
             val builder = AlertDialog.Builder(context)
             builder.setTitle("Enter Password")
                 .setView(input)
