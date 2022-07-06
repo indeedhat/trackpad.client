@@ -1,6 +1,5 @@
 package com.indeedhat.trackpad
 
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -14,8 +13,6 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
-import android.util.Log
-import android.icu.number.Scale
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -30,8 +27,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         public lateinit var instance: MainActivity
     }
-
-    private val pinchDeadzone = 10
 
     private lateinit var ws: WebSocketHanler
 
@@ -75,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         if (this::ws.isInitialized && ws.isConnected) {
             ws.disconnect()
         }
+        super.onPause()
     }
 
     public fun openControlsView() {
@@ -97,6 +93,7 @@ class MainActivity : AppCompatActivity() {
             }
             return@OnTouchListener true
         })
+
         rightClick.setOnTouchListener(View.OnTouchListener{ View, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -113,81 +110,89 @@ class MainActivity : AppCompatActivity() {
                 .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
         }
 
-        var downX: Float? = null
-        var downY: Float? = null
         var prevX: Float? = null
         var prevY: Float? = null
-        var scaling = false;
-        var scrolling = false
+        var isZoom = false
+        var isScroll = false
 
-        val scaler = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
-                scaling = !scrolling
-                return true
-            }
-            override fun onScale(detector: ScaleGestureDetector): Boolean {
-                Log.d("scaling", "scroll ${scrolling}")
-                if (!scrolling) {
-                    ws.sendZoom(detector.scaleFactor)
+        val gestureListener = GestureDetector(this, object: GestureDetector.SimpleOnGestureListener() {
+            override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+                if (e2.pointerCount == 1 || isZoom) {
+                    return false
                 }
+                if (Math.abs(distanceX) < 10 && Math.abs(distanceY) < 10) {
+                    return false
+                }
+
+                isScroll = true
+                ws.sendScroll(distanceX, distanceY)
                 return true
             }
-            override fun onScaleEnd(detector: ScaleGestureDetector) {
-                Log.d("scaling", "end")
-                scaling = false
+
+            override fun onSingleTapConfirmed(event: MotionEvent?): Boolean {
+                if (event == null) {
+                    return true
+                }
+
+                if (event.pointerCount == 1) {
+                    ws.sendLeftClick(true)
+                    ws.sendLeftClick(false)
+                } else {
+                    // this never gets triggered
+                    ws.sendRightClick(true)
+                    ws.sendRightClick(false)
+                }
+
+                return true
             }
-        }
-        val scaleListener = ScaleGestureDetector(this, scaler)
+        })
+
+        val scaleListener = ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScaleEnd(detector: ScaleGestureDetector?) {
+                isZoom = false
+                super.onScaleEnd(detector)
+            }
+            private val eventDelay = 50
+            private var lastEvent: Long = 0
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                if (detector.scaleFactor < 0.01) {
+                    return false
+                }
+
+                if (isScroll || lastEvent + eventDelay > detector.eventTime) {
+                    return true
+                }
+
+                ws.sendZoom(detector.scaleFactor)
+                isZoom = true
+                lastEvent = detector.eventTime
+
+                return true
+            }
+        })
+
 
         trackpad.setOnTouchListener(View.OnTouchListener { View, event ->
-            scaleListener.onTouchEvent(event)
+            if (gestureListener.onTouchEvent(event)) {
+                return@OnTouchListener true
+            } else if (event.pointerCount > 1 && scaleListener.onTouchEvent(event)) {
+                return@OnTouchListener true
+            }
 
             when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    if (downX == null) {
-                        downX = event.getX(0)
-                        downY = event.getY(0)
+                MotionEvent.ACTION_MOVE -> {
+                    if (prevX != null && prevY != null) {
+                        ws.sendMotion(event.x - prevX!!, event.y - prevY!!)
                     }
+
+                    prevX = event.x
+                    prevY = event.y
                 }
                 MotionEvent.ACTION_UP -> {
                     prevX = null
                     prevY = null
-
-                    if (event.getX(0) == downX && event.getY(0) == downY) {
-                        if (event.pointerCount > 1) {
-                            // TODO: this doesn't really work
-                            ws.sendRightClick(true)
-                            ws.sendRightClick(false)
-                        } else {
-                            ws.sendLeftClick(true)
-                            ws.sendLeftClick(false)
-                        }
-                    }
-
-                    scrolling = false
-                    downX = null
-                    downY = null
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    var x = event.x
-                    var y = event.y
-
-                    if (prevX != null && prevY != null) {
-                        Log.d("scaling", "scale ${scaling}")
-                        if (scaling) {
-                            return@OnTouchListener true
-                        }
-
-                        if (event.pointerCount > 1) {
-                            // scrolling = true
-                            // ws.sendScroll(x - prevX!!, y - prevY!!)
-                        } else {
-                            ws.sendMotion(x - prevX!!, y - prevY!!)
-                        }
-                    }
-
-                    prevX = x
-                    prevY = y
+                    isZoom = false
+                    isScroll = false
                 }
             }
 
