@@ -35,7 +35,6 @@ class WebSocketHanler {
                 headers: MutableMap<String, MutableList<String>>?
             ) {
                 super.onConnected(websocket, headers)
-                handleAuth(onConnect)
             }
 
             override fun onDisconnected(
@@ -63,9 +62,13 @@ class WebSocketHanler {
             }
 
             override fun onTextMessage(websocket: WebSocket?, data: String) {
-                Log.d("message", data)
                 isAuthenticated = data == "authenticated"
-                Log.d("message", "auth = ${isAuthenticated}")
+
+                if (isAuthenticated) {
+                    onConnect()
+                } else {
+                    handleAuth(onConnect)
+                }
 
                 super.onTextMessage(websocket, data)
             }
