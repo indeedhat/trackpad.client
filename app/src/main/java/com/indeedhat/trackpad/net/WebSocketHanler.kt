@@ -62,7 +62,7 @@ class WebSocketHanler {
             }
 
             override fun onTextMessage(websocket: WebSocket?, data: String) {
-                isAuthenticated = data == "authenticated"
+                isAuthenticated = data == "auth;true"
 
                 if (isAuthenticated) {
                     onConnect()
@@ -141,8 +141,6 @@ class WebSocketHanler {
                     val passwd = input.text.toString()
                     sendPass(passwd)
                     dialog.cancel()
-
-                    handleAuth(onComplete)
                 }
                 .setNegativeButton("Cancel") { dialog, _ ->
                     dialog.cancel()

@@ -3,7 +3,7 @@ Control a computers mouse/keyboard from an android app
 
 ## TODO
 - [ ] Add macro list
-    - not sure if i should do this server side or client side
+    - not sure if i should do this server side or client side... probably both
 - [ ] make the ui pretty
 - [x] Pinch to zoom
 - [x] FIx scroll (it gets into some kind of loop)

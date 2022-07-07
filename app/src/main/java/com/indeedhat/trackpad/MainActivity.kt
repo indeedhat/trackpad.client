@@ -7,12 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
+import android.graphics.Color
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -30,9 +32,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var ws: WebSocketHanler
 
-    private lateinit var keeb: Button
-    private lateinit var leftClick: Button
-    private lateinit var rightClick: Button
+    private lateinit var keeb: View
+    private lateinit var leftClick: View
+    private lateinit var rightClick: View
     private lateinit var trackpad: View
 
     private lateinit var input: EditText
@@ -42,6 +44,8 @@ class MainActivity : AppCompatActivity() {
 
     private var addresses = ArrayList<String>()
     private var hostnames = ArrayList<String>()
+
+    private var keebOpen = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,17 +81,20 @@ class MainActivity : AppCompatActivity() {
         Thread.sleep(100)
         goFullScreen()
 
-        leftClick  = findViewById<Button>(R.id.left_click)
-        rightClick = findViewById<Button>(R.id.right_click)
-        keeb       = findViewById<Button>(R.id.keeb)
+        leftClick  = findViewById<View>(R.id.left_click)
+        rightClick = findViewById<View>(R.id.right_click)
+        keeb       = findViewById<View>(R.id.keeb)
         trackpad   = findViewById<View>(R.id.trackpad)
 
         leftClick.setOnTouchListener(View.OnTouchListener{ View, event ->
+            Log.d("touch", "left click")
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    leftClick.setBackgroundColor(Color.parseColor("#ffffff"))
                     ws.sendLeftClick(true)
                 }
                 MotionEvent.ACTION_UP -> {
+                    leftClick.setBackgroundColor(Color.parseColor("#000000"))
                     ws.sendLeftClick(false)
                 }
             }
@@ -95,25 +102,40 @@ class MainActivity : AppCompatActivity() {
         })
 
         rightClick.setOnTouchListener(View.OnTouchListener{ View, event ->
+            Log.d("touch", "right click")
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    rightClick.setBackgroundColor(Color.parseColor("#ffffff"))
                     ws.sendRightClick(true)
                 }
                 MotionEvent.ACTION_UP -> {
+                    rightClick.setBackgroundColor(Color.parseColor("#000000"))
                     ws.sendRightClick(false)
                 }
             }
             return@OnTouchListener true
         })
-        keeb.setOnClickListener{ view ->
-            (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-        }
+
+        keeb.setOnTouchListener(View.OnTouchListener{ view, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    keeb.setBackgroundColor(Color.parseColor("#ffffff"))
+                    ws.sendRightClick(true)
+                }
+                MotionEvent.ACTION_UP -> {
+                    keeb.setBackgroundColor(Color.parseColor("#000000"))
+                    ws.sendRightClick(false)
+                    showKeeb()
+                }
+            }
+            return@OnTouchListener true
+        })
 
         var prevX: Float? = null
         var prevY: Float? = null
         var isZoom = false
         var isScroll = false
+        var self = this
 
         val gestureListener = GestureDetector(this, object: GestureDetector.SimpleOnGestureListener() {
             override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
@@ -134,7 +156,9 @@ class MainActivity : AppCompatActivity() {
                     return true
                 }
 
-                if (event.pointerCount == 1) {
+                if (keebOpen) {
+                    hideKeeb(trackpad)
+                } else if (event.pointerCount == 1) {
                     ws.sendLeftClick(true)
                     ws.sendLeftClick(false)
                 } else {
@@ -319,5 +343,17 @@ class MainActivity : AppCompatActivity() {
         windowInsetsController.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+    }
+
+    private fun showKeeb() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+        keebOpen = true
+    }
+
+    private fun hideKeeb(view: View) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0)
+        keebOpen = false
     }
 }
