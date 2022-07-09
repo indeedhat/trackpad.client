@@ -120,11 +120,9 @@ class MainActivity : AppCompatActivity() {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     keeb.setBackgroundColor(Color.parseColor("#ffffff"))
-                    ws.sendRightClick(true)
                 }
                 MotionEvent.ACTION_UP -> {
                     keeb.setBackgroundColor(Color.parseColor("#000000"))
-                    ws.sendRightClick(false)
                     showKeeb()
                 }
             }
@@ -142,7 +140,7 @@ class MainActivity : AppCompatActivity() {
                 if (e2.pointerCount == 1 || isZoom) {
                     return false
                 }
-                if (Math.abs(distanceX) < 10 && Math.abs(distanceY) < 10) {
+                if (!isScroll && (Math.abs(distanceX) < 10 && Math.abs(distanceY) < 10)) {
                     return false
                 }
 
