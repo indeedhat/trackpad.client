@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <com.google.android.flexbox.FlexboxLayout
@@ -47,17 +48,21 @@
                 android:background="@color/black"
                 android:text="left" />
 
-            <View
+            <TextView
                 android:id="@+id/keeb"
                 android:layout_width="20dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 app:layout_flexGrow="1.0"
                 android:focusable="false"
                 android:background="@color/black"
+                android:textColor="@color/white"
+                android:text="⌨"
+                android:textSize="30dp"
+                android:textAlignment="center"
+                android:gravity="center"
                 android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:text="kb" />
+                android:layout_marginRight="5dp"/>
 
             <View
                 android:id="@+id/right_click"
@@ -72,4 +77,5 @@
         </com.google.android.flexbox.FlexboxLayout>
 
     </com.google.android.flexbox.FlexboxLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
