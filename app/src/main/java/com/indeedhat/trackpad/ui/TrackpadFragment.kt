@@ -55,7 +55,7 @@ class TrackpadFragment : Fragment() {
         activity = getActivity() as MainActivity
 
         Thread.sleep(100)
-        activity.goFullScreen()
+        //activity.goFullScreen()
 
         leftClick  = activity.findViewById<View>(R.id.left_click)
         rightClick = activity.findViewById<View>(R.id.right_click)
@@ -173,7 +173,11 @@ class TrackpadFragment : Fragment() {
                 }
 
                 isScroll = true
-                activity.ws.sendScroll(distanceX, distanceY)
+                var x = 0f
+                var y = 0f
+
+                activity.ws.sendScroll(distanceX / 10, distanceY / 10)
+
                 return true
             }
 
