@@ -195,6 +195,15 @@ class TrackpadFragment : Fragment() {
 
                 return true
             }
+
+            override fun onDoubleTap(e: MotionEvent?): Boolean {
+                activity.ws.sendLeftClick(true)
+                activity.ws.sendLeftClick(false)
+                activity.ws.sendLeftClick(true)
+                activity.ws.sendLeftClick(false)
+
+                return true
+            }
         })
     }
 
